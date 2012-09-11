@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Tron disk, selective glow, particles, icosahedrons (Three.js) - Thibaut Despoulain</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background:#444444;
+				padding:0;
+				margin:0;
+				overflow:hidden;
+				font-family:monospace;
+				text-align:center;
+				color: #aaa;
+			}
+			h1 {color: #666	; }
+			a { color:skyblue }
+			canvas { pointer-events:none; z-index:10; }
+			#d {
+				position: absolute;
+				z-index: 99999;
+				bottom: 0;
+				right: 20px;
+				text-align: right;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="d">
+			<h1>bkcore.ImageData</h1>
+		</div>
+
+		<!-- you don't have to put the image markup, this is just for the demo -->
+		<img src="images/test.jpg">
+
+		<div><p id="result"></p></div>
+
+		<script src="../bkcore/ImageData.js"></script>
+
+		<script>
+			var d = document.getElementById("result");
+
+			var img = new bkcore.ImageData("images/test.jpg", function()
+			{
+				var pixel = this.getPixel(256,50);
+				var pixelB = this.getPixelBilinear(257.8, 50.8);
+				var pixelF = this.getPixelF(256,50);
+				var pixelFB = this.getPixelFBilinear(257.8, 50.8);
+
+				d.innerHTML = "Pixel at (256, 50): {r: "+pixel.r+", g: "+pixel.g+", b: "+pixel.b+", a: "+pixel.a+"} | "+pixelF+" (3-bytes) <br>"+"Pixel at (257.8, 50.8): {r: "+pixelB.r.toFixed(2)+", g: "+pixelB.g.toFixed(2)+", b: "+pixelB.b.toFixed(2)+", a: "+pixelB.a.toFixed(2)+"} | "+pixelFB.toFixed(2)+" (3-bytes)";
+			});
+		</script>
+
+	</body>
+</html>
