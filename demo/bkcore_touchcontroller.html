@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0," /> 
+<title></title>
+<style type="text/css"> 
+	
+	* {
+	  -webkit-touch-callout: none; /* prevent callout to copy image, etc when tap to hold */
+	  -webkit-text-size-adjust: none; /* prevent webkit from resizing text to fit */
+	/* make transparent link selection, adjust last value opacity 0 to 1.0 */
+	  -webkit-tap-highlight-color: rgba(0,0,0,0); 
+	  -webkit-user-select: none; /* prevent copy paste, to allow, change 'none' to 'text' */
+	  -webkit-tap-highlight-color: rgba(0,0,0,0); 
+	}
+	
+	body {
+		background-color: #000000;
+		margin: 0px;
+	}
+	canvas {
+		display:block; 
+		position:absolute; 
+	}
+	.container {
+		width:auto;
+		text-align:center;
+		background-color:#ff0000;
+	}
+</style>
+
+
+</head>
+<body>
+<script src="../bkcore/TouchController.js"></script>
+<script>
+// RAF PolyFill
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
+var canvas,
+	controller,
+ 	c, // c is the canvas' context 2D
+	container, 
+	touchable = 'createTouch' in document,
+	halfWidth, 
+	halfHeight; 
+	
+
+setupCanvas();
+
+if(touchable) {
+	controller = new bkcore.TouchController(canvas, halfWidth)
+	window.onorientationchange = resetCanvas;  
+	window.onresize = resetCanvas;  
+} else {
+	
+	alert("Not a touch device!");
+}
+
+function resetCanvas (e) {  
+ 	// resize the canvas - but remember - this clears the canvas too. 
+  	canvas.width = window.innerWidth; 
+	canvas.height = window.innerHeight;
+	
+	halfWidth = canvas.width/2; 
+	halfHeight = canvas.height/2;
+	
+	//make sure we scroll to the top left. 
+	window.scrollTo(0,0); 
+}
+
+function draw() {
+  
+	c.clearRect(0,0,canvas.width, canvas.height); 
+		
+	if(touchable && 'touches' in controller && 'length' in controller.touches) {
+	
+		for(var i=0; i<controller.touches.length; i++) {
+			
+			var touch = controller.touches[i]; 
+			
+			if(touch.identifier == controller.stickID){
+				c.beginPath(); 
+				c.strokeStyle = "cyan"; 
+				c.lineWidth = 6; 
+				c.arc(controller.stickStartPos.x, controller.stickStartPos.y, 40,0,Math.PI*2,true); 
+				c.stroke();
+				c.beginPath(); 
+				c.strokeStyle = "cyan"; 
+				c.lineWidth = 2; 
+				c.arc(controller.stickStartPos.x, controller.stickStartPos.y, 60,0,Math.PI*2,true); 
+				c.stroke();
+				c.beginPath(); 
+				c.strokeStyle = "cyan"; 
+				c.arc(controller.stickPos.x, controller.stickPos.y, 40, 0,Math.PI*2, true); 
+				c.stroke(); 
+				
+			} else {
+				
+				c.beginPath(); 
+				c.fillStyle = "white";
+				c.fillText("touch id : "+touch.identifier+" x:"+touch.clientX+" y:"+touch.clientY, touch.clientX+30, touch.clientY-30); 
+
+				c.beginPath(); 
+				c.strokeStyle = "red";
+				c.lineWidth = "6";
+				c.arc(touch.clientX, touch.clientY, 40, 0, Math.PI*2, true); 
+				c.stroke();
+			}
+		}
+	}
+	
+}
+
+function setupCanvas() {
+	
+	canvas = document.createElement( 'canvas' );
+	c = canvas.getContext( '2d' );
+	container = document.createElement( 'div' );
+	container.className = "container";
+
+	document.body.appendChild( container );
+	container.appendChild(canvas);	
+
+	resetCanvas(); 
+	
+	c.strokeStyle = "#ffffff";
+	c.lineWidth =2;	
+}
+
+function loop() {
+	requestAnimationFrame(loop);
+	draw();
+}
+loop();
+
+</script>
+</body>
+</html>
